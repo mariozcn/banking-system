@@ -1,5 +1,4 @@
-package com.banking.banking_monolith.notification;
-
+package com.banking.notification_service;
 
 import jakarta.persistence.*;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package com.banking.banking_monolith.notification;
+package com.banking.notification_service;
 
 
 import org.slf4j.Logger;

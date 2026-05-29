@@ -1,6 +1,6 @@
-package com.banking.banking_monolith.notification;
+package com.banking.notification_service;
 
-import com.banking.banking_monolith.event.TransferCompletedEvent;
+import com.banking.notification_service.event.TransferCompletedEvent;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
@@ -12,7 +12,7 @@ public class TransferEventConsumer {
         this.notificationService = notificationService;
     }
 
-    @KafkaListener(topics="transaction-events", groupId = "banking-monolith")
+    @KafkaListener(topics="transaction-events", groupId = "notification-service")
     public void handleTransferCompleted(TransferCompletedEvent event){
         notificationService.sendNotification(event.sender(), NotificationType.TRANSFER_SENT,"Transfered " + event.amount()
         +event.currency() + " to " + event.receiverName());

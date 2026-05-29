@@ -6,7 +6,6 @@ import com.banking.banking_monolith.account.AccountRepository;
 import com.banking.banking_monolith.audit.AuditAction;
 import com.banking.banking_monolith.audit.AuditLogService;
 import com.banking.banking_monolith.event.TransferCompletedEvent;
-import com.banking.banking_monolith.notification.NotificationService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -25,16 +24,14 @@ public class TransactionService {
     private final RedisTemplate<String,String> redisTemplate;
     private final ObjectMapper objectMapper;
     private final AuditLogService auditLogService;
-    private final NotificationService notificationService;
     private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    public TransactionService(TransactionRepository transactionRepository, AccountRepository accountRepository, RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper, AuditLogService auditLogService, NotificationService notificationService, KafkaTemplate<String, Object> kafkaTemplate) {
+    public TransactionService(TransactionRepository transactionRepository, AccountRepository accountRepository, RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper, AuditLogService auditLogService, KafkaTemplate<String, Object> kafkaTemplate) {
         this.transactionRepository = transactionRepository;
         this.accountRepository = accountRepository;
         this.redisTemplate = redisTemplate;
         this.objectMapper = objectMapper;
         this.auditLogService = auditLogService;
-        this.notificationService = notificationService;
         this.kafkaTemplate = kafkaTemplate;
     }
 

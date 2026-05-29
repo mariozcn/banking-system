@@ -1,4 +1,4 @@
-package com.banking.banking_monolith.notification;
+package com.banking.notification_service;
 
 public enum NotificationType {
     TRANSFER_RECEIVED, TRANSFER_SENT
