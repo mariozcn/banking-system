@@ -6,6 +6,8 @@ import com.banking.banking_monolith.account.AccountRepository;
 import com.banking.banking_monolith.audit.AuditAction;
 import com.banking.banking_monolith.audit.AuditLogService;
 import com.banking.banking_monolith.event.TransferCompletedEvent;
+import com.banking.banking_monolith.outbox.OutboxEvent;
+import com.banking.banking_monolith.outbox.OutboxEventRepository;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -24,15 +26,15 @@ public class TransactionService {
     private final RedisTemplate<String,String> redisTemplate;
     private final ObjectMapper objectMapper;
     private final AuditLogService auditLogService;
-    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final OutboxEventRepository outboxEventRepository;
 
-    public TransactionService(TransactionRepository transactionRepository, AccountRepository accountRepository, RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper, AuditLogService auditLogService, KafkaTemplate<String, Object> kafkaTemplate) {
+    public TransactionService(TransactionRepository transactionRepository, AccountRepository accountRepository, RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper, AuditLogService auditLogService, OutboxEventRepository outboxEventRepository) {
         this.transactionRepository = transactionRepository;
         this.accountRepository = accountRepository;
         this.redisTemplate = redisTemplate;
         this.objectMapper = objectMapper;
         this.auditLogService = auditLogService;
-        this.kafkaTemplate = kafkaTemplate;
+        this.outboxEventRepository = outboxEventRepository;
     }
 
     @Transactional
@@ -86,7 +88,20 @@ public class TransactionService {
                     transactionRequest.amount()
             );
 
-            kafkaTemplate.send("transaction-events",event);
+
+            try{
+                String payload = objectMapper.writeValueAsString(event);
+                OutboxEvent outboxEvent = new OutboxEvent();
+                outboxEvent.setAggregateId(transaction.getId());
+                outboxEvent.setAggregateType("TRANSACTION");
+                outboxEvent.setEventType("transaction.completed");
+                outboxEvent.setPayload(payload);
+                outboxEventRepository.save(outboxEvent);
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+
+
 
         }else{
             transaction.setStatus(TransactionStatus.FAILED);
